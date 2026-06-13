@@ -33,6 +33,100 @@ trigger recalls, contractual penalties, or harm to people.
 This is the problem space embedded engineers operate in, and it is precisely the
 problem space that disciplined Test-Driven Development is designed to address.
 
-## Contents
+## Why TDD: It Is About Design, Not Testing
 
-- Foundations
+A common misconception is that TDD is primarily a testing activity. It is not.
+**TDD is a design discipline**; the tests are a byproduct of letting requirements
+drive the structure of the code. Its core benefits follow directly from this
+distinction:
+
+**Dramatically Improved Code Quality**
+
+- It creates a comprehensive **regression net**: changes that break existing
+  functionality are caught immediately, rather than slipping through unnoticed.
+- Writing tests first forces **loosely coupled, modular design**, because code that
+  is hard to test is usually code that is poorly structured.
+
+**Massively Reduced Debugging Time**
+
+- Bugs are found within seconds of being introduced, not weeks later during the QA
+  phase.
+- The debugging scope is limited to the last few lines of code just written, rather
+  than the entire codebase, turning open-ended investigations into quick fixes.
+
+**Enhanced Maintainability and Fearless Refactoring**
+
+- A full suite of tests acts as **living documentation** of how the system is meant
+  to behave.
+- This allows engineers to improve and refactor code with confidence, knowing that
+  any regression will be caught immediately.
+
+## Challenges of TDD in Embedded Systems
+
+Embedded TDD is not simple; if it were, expertise in it would be commonplace.
+Embedded software is intimately tied to physical hardware, runs on
+microcontrollers with very limited RAM and flash, and frequently exhibits complex
+real-time behavior that is difficult to replicate in a test. Acknowledging these
+challenges is the first step toward overcoming them.
+
+**Hardware Dependencies**
+
+How do you test a GPIO driver without the physical hardware present? Code that
+talks directly to peripherals cannot simply be run on a host machine.
+
+**Resource Constraints**
+
+Even with physical hardware available, test frameworks add overhead. Running them
+on a memory-constrained microcontroller is often impractical, forcing tests onto a
+host or a carefully managed target build.
+
+**Real-Time Requirements**
+
+Embedded systems frequently must meet hard timing requirements. Reliably testing
+time-sensitive code and interrupt-driven logic is inherently difficult.
+
+The remainder of this course is dedicated to the specific patterns and techniques,
+such as **test doubles**, **mocks**, and careful **architectural design**, that
+address every one of these challenges.
+
+Welcome back.
+
+The core loop of TDD is a simple, disciplined cycle.
+
+This is the red green refactor cycle.
+
+This is the heartbeat of TDD.
+
+It is simple three step mantra red.
+
+Green.
+
+Refactor.
+
+Now add a red step.
+
+You deliberately write a test code that doesn't exist yet and you watch it fail.
+
+This is critical.
+
+It proves your test is working and defines your immediate goals.
+
+Second, we have the green step.
+
+Over here you write the absolute minimum amount of code required to make that one test pass.
+
+The goal is not elegant, it's just to get back to a stable working state.
+
+And finally, we have the refactor step with a safety of a passing test.
+
+You can now clean up your code.
+
+You can rename variables, extract functions, and improve the architecture, all with the confidence
+
+that you haven't broken anything.
+
+Then you start the cycle all over again for the next feature.
+
+This tiny loop, repeated hundreds of times, is how we build complex, robust systems from simple,
+
+verifiable steps.
