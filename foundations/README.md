@@ -85,48 +85,33 @@ host or a carefully managed target build.
 Embedded systems frequently must meet hard timing requirements. Reliably testing
 time-sensitive code and interrupt-driven logic is inherently difficult.
 
-The remainder of this course is dedicated to the specific patterns and techniques,
+The rest of this repository is dedicated to the specific patterns and techniques,
 such as **test doubles**, **mocks**, and careful **architectural design**, that
 address every one of these challenges.
 
-Welcome back.
+## The Red-Green-Refactor Cycle
 
-The core loop of TDD is a simple, disciplined cycle.
-
-This is the red green refactor cycle.
-
-This is the heartbeat of TDD.
-
-It is simple three step mantra red.
-
-Green.
-
-Refactor.
-
-Now add a red step.
-
-You deliberately write a test code that doesn't exist yet and you watch it fail.
-
-This is critical.
-
-It proves your test is working and defines your immediate goals.
-
-Second, we have the green step.
-
-Over here you write the absolute minimum amount of code required to make that one test pass.
-
-The goal is not elegant, it's just to get back to a stable working state.
-
-And finally, we have the refactor step with a safety of a passing test.
-
-You can now clean up your code.
-
-You can rename variables, extract functions, and improve the architecture, all with the confidence
-
-that you haven't broken anything.
-
-Then you start the cycle all over again for the next feature.
-
-This tiny loop, repeated hundreds of times, is how we build complex, robust systems from simple,
-
+The core loop of TDD is a simple, disciplined cycle: **Red, Green, Refactor**.
+This three-step mantra is the heartbeat of the practice, and repeating this tiny
+loop hundreds of times is how complex, robust systems are built from simple,
 verifiable steps.
+
+**Red**
+
+Deliberately write a test for code that does not exist yet, and watch it fail.
+This step is critical: a failing test proves that the test itself works and
+clearly defines the immediate goal.
+
+**Green**
+
+Write the absolute minimum amount of code required to make that one test pass. The
+goal here is not elegance; it is simply to return to a stable, working state as
+quickly as possible.
+
+**Refactor**
+
+With the safety of a passing test, the code can now be cleaned up. Variables can be
+renamed, functions extracted, and the architecture improved, all with the
+confidence that nothing has been broken.
+
+The cycle then begins again for the next piece of functionality.
