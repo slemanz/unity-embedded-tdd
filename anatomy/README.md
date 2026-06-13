@@ -81,3 +81,30 @@ MyProject/
 Either layout is valid; the choice depends on how much separation the project
 needs.
 
+## The Two Key Tools
+
+Performing TDD in C relies on two frameworks that are used extensively throughout
+this repository: **Unity** and **CMock**.
+
+### Unity — The Test Runner and Referee
+
+Unity is the test runner and the referee. It lets you write test functions and
+provides a rich library of assertions to check whether the code produced the
+expected result, delivering a final verdict as a simple **pass** or **fail**.
+
+For example, the following assertion checks that the value returned by
+`get_value()` equals `5`:
+
+```c
+TEST_ASSERT_EQUAL_UINT8(5, get_value());
+```
+
+Here `5` is the expected value and `get_value()` is the code under test. If the
+function returns `5`, the assertion passes; otherwise it fails.
+
+### CMock — The Stunt Double
+
+CMock is the stunt double for the code. It reads the project's header files and
+automatically generates fake versions of those modules. This is what makes it
+possible to test a module that talks to a hardware driver **without needing the
+actual hardware**, allowing the logic to be verified in complete isolation.
