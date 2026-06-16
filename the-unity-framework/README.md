@@ -149,3 +149,40 @@ check_port     /* far too generic */
 A short name that hides intent is not a win. Keep these conventions in mind and the
 test names become living documentation that always matches what the code actually
 does.
+
+## Essential Unity Assertions
+
+Unity gives you a rich set of macros to validate behavior. Think of them as your
+toolbox for checking results. You will reach for only a handful of them most of the
+time, but knowing those well covers nearly every case.
+
+For integer equality, prefer the sized variants so the intent is explicit about the
+width you actually expect:
+
+```c
+TEST_ASSERT_EQUAL_UINT8(0x3F, value);
+TEST_ASSERT_EQUAL_HEX16(0x1234, reg);
+```
+
+The `HEX` variants are especially good for verifying register values, since the
+failure message prints in hex and lines up directly with the datasheet.
+
+For simpler conditions there are boolean and pointer checks:
+
+```c
+TEST_ASSERT_TRUE(condition);
+TEST_ASSERT_FALSE(condition);
+TEST_ASSERT_NULL(pointer);
+TEST_ASSERT_NOT_NULL(pointer);
+```
+
+Finally, `TEST_FAIL_MESSAGE` lets you mark a code path that should never be
+reached:
+
+```c
+TEST_FAIL_MESSAGE("this branch should be unreachable");
+```
+
+Placing it on a path you believe is impossible turns an assumption into a checked
+guarantee: if execution ever lands there, the test fails and tells you why. It is a
+small way to keep the test logic itself honest.
