@@ -19,10 +19,10 @@ INCLUDES += -I $(TEST_DIR)
 ############################################
 
 # Production code under test
-OBJS      += $(BUILD_DIR)/example.o
+OBJS      += $(BUILD_DIR)/registry.o
 
 # Test cases and the runner
-TEST_OBJS += $(BUILD_DIR)/example_test.o
+TEST_OBJS += $(BUILD_DIR)/registry_test.o
 TEST_OBJS += $(BUILD_DIR)/AllTestRunner.o
 
 # Unity framework

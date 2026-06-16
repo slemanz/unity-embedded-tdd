@@ -2,7 +2,7 @@
 
 static void RunAllTests(void)
 {
-    RUN_TEST_GROUP(Example);
+    RUN_TEST_GROUP(Registry);
 }
 
 int main(int argc, const char *argv[])
