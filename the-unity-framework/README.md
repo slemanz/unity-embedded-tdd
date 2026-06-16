@@ -114,3 +114,38 @@ test drive the design instead of merely checking work that is already done.
 
 Internalize these five principles. They are your guide to writing tests that stay
 valuable as the project grows.
+
+## Naming and Structure
+
+Structure and naming are not trivial details, they are what keeps a test suite
+maintainable over the long run. Two simple habits do most of the work.
+
+First, mirror your production code with your tests. For every source file you
+create, such as `led_driver.c`, you create a corresponding test file named
+`test_led_driver.c`. The layout of the tests then tells you where to look the
+moment something breaks.
+
+Second, treat the name of each test function as your first line of documentation.
+A well-named test tells you exactly what failed without your ever having to open
+the test code, which is invaluable once a project has hundreds of them. By reading
+the name alone, you should know what the test exercises and what a pass or a
+failure is meant to prove.
+
+Compare these. The good tests are longer, but they optimize for clarity:
+
+```c
+test_driver_turn_on_sets_the_correct_output_data_register_bit
+test_driver_init_enables_the_gpio_clock
+```
+
+The bad ones are shorter and feel elegant, but they earn their place on the list
+by telling you nothing:
+
+```c
+test_led_one   /* what about it? what is being verified? */
+check_port     /* far too generic */
+```
+
+A short name that hides intent is not a win. Keep these conventions in mind and the
+test names become living documentation that always matches what the code actually
+does.
