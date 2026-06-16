@@ -152,15 +152,20 @@ does.
 
 ## Essential Unity Assertions
 
-Unity gives you a rich set of macros to validate behavior. Think of them as your
-toolbox for checking results. You will reach for only a handful of them most of the
-time, but knowing those well covers nearly every case.
+Unity is a lightweight unit-testing framework for C built around expressive
+assertion macros. They validate program behavior, print helpful diagnostics, and
+stop a failing test immediately, so a fault is caught right at the point of error.
+Think of these macros as your toolbox for checking results: you reach for only a
+handful most of the time, but knowing those well covers nearly every case.
 
-For integer equality, prefer the sized variants so the intent is explicit about the
-width you actually expect:
+The set is broad, with assertions for booleans, integers of every width, strings,
+bitmasks, ranges, relational comparisons, and pointers. Most come in type-specific
+forms, which is what makes the intent explicit about the width you actually expect:
 
 ```c
 TEST_ASSERT_EQUAL_UINT8(0x3F, value);
+TEST_ASSERT_EQUAL_INT16(-1, delta);
+TEST_ASSERT_EQUAL_UINT32(0xDEADBEEF, id);
 TEST_ASSERT_EQUAL_HEX16(0x1234, reg);
 ```
 
@@ -174,6 +179,14 @@ TEST_ASSERT_TRUE(condition);
 TEST_ASSERT_FALSE(condition);
 TEST_ASSERT_NULL(pointer);
 TEST_ASSERT_NOT_NULL(pointer);
+```
+
+Almost every assertion also has a `_MESSAGE` variant that takes a trailing custom
+string, printed only when the check fails. It is an easy way to leave yourself a
+note about what a failure actually means:
+
+```c
+TEST_ASSERT_EQUAL_UINT8_MESSAGE(0x3F, value, "config register not initialized");
 ```
 
 Finally, `TEST_FAIL_MESSAGE` lets you mark a code path that should never be
