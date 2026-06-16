@@ -70,3 +70,47 @@ Red defines the goal, green reaches it the fastest way possible, and refactor
 makes the result something you would be proud to ship. Then the cycle begins again
 with the next failing test. Repeat it enough times and it stops being a procedure
 you follow and becomes the way you think.
+
+## What Makes a Good Unit Test
+
+The cycle is only as good as the tests you feed into it. A bad test can be worse
+than no test at all: it gives you false confidence, or it turns into a brittle,
+time-consuming maintenance burden. So before writing more tests, it is worth
+defining what a good unit test actually looks like, so that the tests become
+valuable assets to the project rather than liabilities.
+
+A useful way to remember the qualities of a solid unit test is the acronym
+**FIRST**.
+
+**Fast**
+
+A host-based test should run in the blink of an eye. When the whole suite finishes
+in a moment, you run it constantly, and that tight feedback loop is what keeps the
+Red-Green-Refactor cycle alive.
+
+**Independent**
+
+Each test should start from a clean slate, with no dependence on the order or the
+side effects of any other test. This is exactly what `setup` and `teardown` are
+for: they prepare fresh state before every case and clean it up afterward.
+
+**Repeatable**
+
+A test should give the same result every time it runs, regardless of the
+environment. This is the core reason we reach for mocks: they remove the
+unpredictability of physical hardware from the unit test, so the outcome depends
+only on the logic under test.
+
+**Self-Validating**
+
+A test must decide its own outcome with no ambiguity. There is no middle ground and
+no human left to interpret the result: the test either passes or it fails. Unity
+handles this for us through its assertions.
+
+**Timely**
+
+Write the test first. This is the very definition of TDD, and it is what lets the
+test drive the design instead of merely checking work that is already done.
+
+Internalize these five principles. They are your guide to writing tests that stay
+valuable as the project grows.
