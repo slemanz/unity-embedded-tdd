@@ -170,16 +170,9 @@ TEST_ASSERT_EQUAL_HEX16(0x1234, reg);
 ```
 
 The `HEX` variants are especially good for verifying register values, since the
-failure message prints in hex and lines up directly with the datasheet.
-
-For simpler conditions there are boolean and pointer checks:
-
-```c
-TEST_ASSERT_TRUE(condition);
-TEST_ASSERT_FALSE(condition);
-TEST_ASSERT_NULL(pointer);
-TEST_ASSERT_NOT_NULL(pointer);
-```
+failure message prints in hex and lines up directly with the datasheet. The
+families that follow each get their own section, starting with booleans and
+pointers below.
 
 Almost every assertion also has a `_MESSAGE` variant that takes a trailing custom
 string, printed only when the check fails. It is an easy way to leave yourself a
@@ -199,3 +192,54 @@ TEST_FAIL_MESSAGE("this branch should be unreachable");
 Placing it on a path you believe is impossible turns an assumption into a checked
 guarantee: if execution ever lands there, the test fails and tells you why. It is a
 small way to keep the test logic itself honest.
+
+## Boolean and Pointer Assertions
+
+The first family of assertions deals with the truthiness of a value and the
+validity of a pointer. They are general-purpose checks, and they rest on a simple
+fact about C: any non-zero value is true and zero is false. It is the same idea as
+writing `while (1)` instead of `while (true)`, so in embedded code any number above
+zero counts as true.
+
+| Assertion | Passes when |
+|---|---|
+| `TEST_ASSERT(condition)` | the condition is true (non-zero) |
+| `TEST_ASSERT_TRUE(condition)` | the condition is true, a readable alias for `TEST_ASSERT` |
+| `TEST_ASSERT_FALSE(condition)` | the condition is false (zero) |
+| `TEST_ASSERT_UNLESS(condition)` | the condition is false, it inverts the condition |
+| `TEST_ASSERT_NULL(pointer)` | the pointer is `NULL` |
+| `TEST_ASSERT_NOT_NULL(pointer)` | the pointer is not `NULL` |
+
+The `registry` example puts all six to work. The module is tiny: `Registry_IsKnown`
+answers a yes-or-no question, and `Registry_NameOf` hands back a pointer to a name
+or `NULL` when the id is unknown, which is exactly the shape these assertions are
+built for.
+
+```c
+TEST(Registry, ReportsAKnownId)
+{
+    /* TEST_ASSERT is the base check, TEST_ASSERT_TRUE is its readable alias. */
+    TEST_ASSERT(Registry_IsKnown(0));
+    TEST_ASSERT_TRUE(Registry_IsKnown(2));
+}
+
+TEST(Registry, ReportsAnUnknownId)
+{
+    /* TEST_ASSERT_UNLESS inverts the condition, just like asserting false. */
+    TEST_ASSERT_FALSE(Registry_IsKnown(99));
+    TEST_ASSERT_UNLESS(Registry_IsKnown(99));
+}
+
+TEST(Registry, KnownIdReturnsAName)
+{
+    TEST_ASSERT_NOT_NULL(Registry_NameOf(1));
+}
+
+TEST(Registry, UnknownIdReturnsNoName)
+{
+    TEST_ASSERT_NULL(Registry_NameOf(99));
+}
+```
+
+The full module lives in `src/registry.c` and `tests/registry_test.c`. Run `make`
+to watch the four cases go green.
