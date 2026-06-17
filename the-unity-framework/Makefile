@@ -22,11 +22,13 @@ INCLUDES += -I $(TEST_DIR)
 OBJS      += $(BUILD_DIR)/registry.o
 OBJS      += $(BUILD_DIR)/gpio_reg.o
 OBJS      += $(BUILD_DIR)/sensor.o
+OBJS      += $(BUILD_DIR)/packet.o
 
 # Test cases and the runner
 TEST_OBJS += $(BUILD_DIR)/registry_test.o
 TEST_OBJS += $(BUILD_DIR)/gpio_reg_test.o
 TEST_OBJS += $(BUILD_DIR)/sensor_test.o
+TEST_OBJS += $(BUILD_DIR)/packet_test.o
 TEST_OBJS += $(BUILD_DIR)/AllTestRunner.o
 
 # Unity framework
