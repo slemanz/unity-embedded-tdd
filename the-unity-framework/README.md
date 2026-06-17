@@ -160,19 +160,9 @@ handful most of the time, but knowing those well covers nearly every case.
 
 The set is broad, with assertions for booleans, integers of every width, strings,
 bitmasks, ranges, relational comparisons, and pointers. Most come in type-specific
-forms, which is what makes the intent explicit about the width you actually expect:
-
-```c
-TEST_ASSERT_EQUAL_UINT8(0x3F, value);
-TEST_ASSERT_EQUAL_INT16(-1, delta);
-TEST_ASSERT_EQUAL_UINT32(0xDEADBEEF, id);
-TEST_ASSERT_EQUAL_HEX16(0x1234, reg);
-```
-
-The `HEX` variants are especially good for verifying register values, since the
-failure message prints in hex and lines up directly with the datasheet. The
-families that follow each get their own section, starting with booleans and
-pointers below.
+forms, which makes the intent explicit about the width you actually expect. Each
+family gets its own section below, but they all share the same shape: an expected
+value, the actual value, and a clear pass or fail.
 
 Almost every assertion also has a `_MESSAGE` variant that takes a trailing custom
 string, printed only when the check fails. It is an easy way to leave yourself a
@@ -243,3 +233,96 @@ TEST(Registry, UnknownIdReturnsNoName)
 
 The full module lives in `src/registry.c` and `tests/registry_test.c`. Run `make`
 to watch the four cases go green.
+
+## Integer Equality Assertions
+
+The next family checks that two integers are equal, in both signed and unsigned
+flavors and at any width. They all take the same two arguments: the expected value
+first, then the actual value, where the actual value is usually whatever a function
+or computation returned.
+
+| Assertion | Checks |
+|---|---|
+| `TEST_ASSERT_EQUAL(expected, actual)` | equality at the platform's native `int` width, an alias for `TEST_ASSERT_EQUAL_INT` |
+| `TEST_ASSERT_EQUAL_INT(expected, actual)` | signed integer equality |
+| `TEST_ASSERT_EQUAL_INT8/16/32/64` | signed equality at a specific width |
+| `TEST_ASSERT_EQUAL_UINT(expected, actual)` | unsigned integer equality |
+| `TEST_ASSERT_EQUAL_UINT8/16/32/64` | unsigned equality at a specific width |
+| `TEST_ASSERT_NOT_EQUAL(expected, actual)` | that the two values differ |
+
+`TEST_ASSERT_EQUAL` follows the native `int` of the platform, so on an Arm target
+where `int` is 32 bits it behaves like the 32-bit check. Reach for the width-specific
+variants when you want the assertion pinned to an exact type rather than whatever
+the platform happens to use.
+
+The `gpio_reg` example counts set bits and asserts the result as a plain integer:
+
+```c
+TEST(GpioReg, CountsSetPinsAsAnInteger)
+{
+    /* TEST_ASSERT_EQUAL is the alias for the platform int width. */
+    TEST_ASSERT_EQUAL(3, GpioReg_CountSetPins(0x0Eu));
+    TEST_ASSERT_EQUAL_UINT8(0, GpioReg_CountSetPins(0x00u));
+    TEST_ASSERT_NOT_EQUAL(1, GpioReg_CountSetPins(0x0Eu));
+}
+```
+
+## Hexadecimal Equality Assertions
+
+Hex assertions compare the same integer values, but they view and print them as
+hexadecimal. That makes them the natural choice for inspecting register contents and
+bit-packed values, since the failure message lines up directly with a datasheet.
+
+| Assertion | Checks |
+|---|---|
+| `TEST_ASSERT_EQUAL_HEX(expected, actual)` | hex value equality at the native width |
+| `TEST_ASSERT_EQUAL_HEX8/16/32/64` | hex equality at a specific width |
+
+Setting a pin in the `gpio_reg` example produces a register value we verify in hex:
+
+```c
+TEST(GpioReg, SettingAPinProducesTheExpectedRegister)
+{
+    /* HEX variants print the failure in hex, lined up with the datasheet. */
+    TEST_ASSERT_EQUAL_HEX32(0x00000001u, GpioReg_SetPin(0x00000000u, 0));
+    TEST_ASSERT_EQUAL_HEX8(0x81u, (uint8_t)GpioReg_SetPin(0x01u, 7));
+}
+```
+
+## Bitmask and Bit-Level Assertions
+
+When you care about specific bits rather than the whole value, Unity has assertions
+that validate masked fields or individual bits. These are the workhorses of driver
+tests.
+
+| Assertion | Checks |
+|---|---|
+| `TEST_ASSERT_BITS(mask, expected, actual)` | only the bits under `mask`, compared against `expected` |
+| `TEST_ASSERT_BITS_HIGH(mask, actual)` | every bit under `mask` is one |
+| `TEST_ASSERT_BITS_LOW(mask, actual)` | every bit under `mask` is zero |
+| `TEST_ASSERT_BIT_HIGH(bit, actual)` | the single bit at index `bit` is one |
+| `TEST_ASSERT_BIT_LOW(bit, actual)` | the single bit at index `bit` is zero |
+
+Note the difference between the plural and singular forms: `BITS` takes a mask and
+acts on every bit it selects, while `BIT` takes an index, so `TEST_ASSERT_BIT_HIGH(4, reg)`
+checks bit number four specifically.
+
+Driving a single pin in the `gpio_reg` example shows both forms at once:
+
+```c
+TEST(GpioReg, SettingAPinDrivesTheRightBits)
+{
+    uint32_t reg = GpioReg_SetPin(0x00u, 4);
+
+    /* Single bit: index 4 is high, index 0 stays low. */
+    TEST_ASSERT_BIT_HIGH(4, reg);
+    TEST_ASSERT_BIT_LOW(0, reg);
+
+    /* Masked fields: only bit 4 of the low nibble mask is high. */
+    TEST_ASSERT_BITS_HIGH(0x10u, reg);
+    TEST_ASSERT_BITS_LOW(0x0Fu, reg);
+    TEST_ASSERT_BITS(0xFFu, 0x10u, reg);
+}
+```
+
+The whole module lives in `src/gpio_reg.c` and `tests/gpio_reg_test.c`.
