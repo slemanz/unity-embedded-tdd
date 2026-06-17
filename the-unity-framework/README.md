@@ -387,3 +387,83 @@ TEST(Sensor, AverageStaysCloseToTheTarget)
 ```
 
 The whole module lives in `src/sensor.c` and `tests/sensor_test.c`.
+
+## String, Pointer, and Memory Assertions
+
+Beyond single numbers, Unity can compare strings, pointer addresses, and raw
+buffers directly.
+
+| Assertion | Checks |
+|---|---|
+| `TEST_ASSERT_EQUAL_PTR(expected, actual)` | two pointers hold the same address |
+| `TEST_ASSERT_EQUAL_STRING(expected, actual)` | two null-terminated strings are identical |
+| `TEST_ASSERT_EQUAL_STRING_LEN(expected, actual, len)` | the first `len` characters match |
+| `TEST_ASSERT_EQUAL_MEMORY(expected, actual, len)` | two memory regions are byte-for-byte equal |
+
+A few details are worth keeping in mind. `TEST_ASSERT_EQUAL_PTR` checks identity,
+not contents: it asks whether both pointers point at the same place. `STRING` relies
+on the terminating null, since it scans for it internally, while `STRING_LEN` stops
+after `len` characters, which makes it the tool for comparing a prefix or a string
+that is not null-terminated. `MEMORY` ignores meaning entirely and just compares the
+bytes.
+
+The `packet` example uses each of them:
+
+```c
+TEST(Packet, LabelMatchesAsAString)
+{
+    TEST_ASSERT_EQUAL_STRING("data", Packet_Label(1));
+
+    /* STRING_LEN compares only the first n characters: "pin" against "ping". */
+    TEST_ASSERT_EQUAL_STRING_LEN("pinned", Packet_Label(0), 3);
+}
+
+TEST(Packet, LabelReturnsAStableAddress)
+{
+    /* The label is a static literal, so the same id yields the same pointer. */
+    TEST_ASSERT_EQUAL_PTR(Packet_Label(1), Packet_Label(1));
+}
+
+TEST(Packet, HeaderHasTheExpectedBytes)
+{
+    uint8_t header[4];
+    const uint8_t expected[4] = { 0xAA, 0x07, 0x01, 0x02 };
+
+    Packet_BuildHeader(header, 0x07, 0x0102);
+
+    /* MEMORY does a raw byte-for-byte comparison of the two regions. */
+    TEST_ASSERT_EQUAL_MEMORY(expected, header, sizeof(expected));
+}
+```
+
+## Array Assertions
+
+When you need an element-by-element comparison over two arrays of the same length,
+the `_ARRAY` family does the work. Each one takes the expected array, the actual
+array, and the number of elements.
+
+| Assertion | Compares |
+|---|---|
+| `TEST_ASSERT_EQUAL_INT_ARRAY` and `INT8/16/32/64_ARRAY` | arrays of signed integers |
+| `TEST_ASSERT_EQUAL_UINT_ARRAY` and `UINT8/16/32/64_ARRAY` | arrays of unsigned integers |
+| `TEST_ASSERT_EQUAL_HEX_ARRAY` and `HEX8/16/32/64_ARRAY` | the same, reported in hex |
+| `TEST_ASSERT_EQUAL_PTR_ARRAY` | an array of pointers |
+| `TEST_ASSERT_EQUAL_STRING_ARRAY` | an array of strings |
+| `TEST_ASSERT_EQUAL_MEMORY_ARRAY` | an array of fixed-size memory blocks |
+
+The same packet header can be checked element by element, in plain or hex form:
+
+```c
+TEST(Packet, HeaderMatchesElementByElement)
+{
+    uint8_t header[4];
+    const uint8_t expected[4] = { 0xAA, 0x07, 0x01, 0x02 };
+
+    Packet_BuildHeader(header, 0x07, 0x0102);
+
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(expected, header, 4);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, header, 4);
+}
+```
+
+The whole module lives in `src/packet.c` and `tests/packet_test.c`.
