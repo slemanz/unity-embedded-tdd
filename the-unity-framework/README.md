@@ -326,3 +326,64 @@ TEST(GpioReg, SettingAPinDrivesTheRightBits)
 ```
 
 The whole module lives in `src/gpio_reg.c` and `tests/gpio_reg_test.c`.
+
+## Relational Comparison Assertions
+
+Sometimes you do not care about an exact value, only its relationship to a limit:
+greater than a floor, less than a ceiling. These assertions take the threshold
+first and the actual value second, and they come in signed, unsigned, and hex
+flavors at every width.
+
+| Assertion | Passes when |
+|---|---|
+| `TEST_ASSERT_GREATER_THAN(threshold, actual)` | `actual > threshold` at the native `int` width |
+| `TEST_ASSERT_GREATER_THAN_INT8/16/32` | the same, signed, at a specific width |
+| `TEST_ASSERT_GREATER_THAN_UINT8/16/32` | the same, unsigned |
+| `TEST_ASSERT_GREATER_THAN_HEX8/16/32` | the same, printed in hex |
+| `TEST_ASSERT_LESS_THAN(threshold, actual)` | `actual < threshold`, with the same width and sign variants |
+
+The threshold is usually a limit your system must respect, for example a value a
+computation has to exceed before the firmware moves to the next stage. The `sensor`
+example averages a handful of readings and checks that the result sits between two
+rails:
+
+```c
+TEST(Sensor, AverageStaysBetweenTheRails)
+{
+    uint16_t avg = Sensor_Average(samples, 5); /* 2002 */
+
+    /* Relational: the threshold comes first, the actual reading second. */
+    TEST_ASSERT_GREATER_THAN_UINT16(1800, avg);
+    TEST_ASSERT_LESS_THAN_UINT16(2200, avg);
+}
+```
+
+## Range and Tolerance Assertions
+
+Exact equality is too strict for anything measured or computed with rounding. The
+`WITHIN` assertions let you accept any value that lands within plus or minus a
+tolerance of a target. They take three arguments: the delta (the tolerance), the
+expected value, and the actual value, and they pass when the difference between
+expected and actual is no larger than the delta.
+
+| Assertion | Passes when |
+|---|---|
+| `TEST_ASSERT_INT_WITHIN(delta, expected, actual)` | `abs(expected - actual) <= delta`, signed |
+| `TEST_ASSERT_INT8/16/32_WITHIN` | the same at a specific signed width |
+| `TEST_ASSERT_UINT_WITHIN` and `UINT8/16/32_WITHIN` | the same, unsigned |
+| `TEST_ASSERT_HEX_WITHIN` and `HEX8/16/32_WITHIN` | the same, printed in hex |
+
+The same sensor average should stay close to its expected target, give or take a
+little measurement noise:
+
+```c
+TEST(Sensor, AverageStaysCloseToTheTarget)
+{
+    uint16_t avg = Sensor_Average(samples, 5); /* 2002 */
+
+    /* Range: avg must be within +/- 50 of the 2000 target. */
+    TEST_ASSERT_UINT16_WITHIN(50, 2000, avg);
+}
+```
+
+The whole module lives in `src/sensor.c` and `tests/sensor_test.c`.
