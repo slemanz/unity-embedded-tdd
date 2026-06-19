@@ -545,3 +545,40 @@ default to save space, so you enable them by defining `UNITY_INCLUDE_DOUBLE` in 
 Unity configuration before they will compile.
 
 The whole module lives in `src/adc.c` and `tests/adc_test.c`.
+
+## Flow Control Helpers
+
+Not everything in a test is an equality check. Unity also gives you a few helpers
+that steer the outcome of a test directly, and you will see them often.
+
+| Helper | Effect |
+|---|---|
+| `TEST_FAIL()` / `TEST_FAIL_MESSAGE(msg)` | fail the test right now, optionally with a message |
+| `TEST_IGNORE()` / `TEST_IGNORE_MESSAGE(msg)` | stop and mark the test as ignored |
+| `TEST_PASS()` / `TEST_PASS_MESSAGE(msg)` | stop and mark the test as passed |
+
+`TEST_FAIL` is handy on a branch that should never run, the same role you saw with
+the unreachable-path check earlier. `TEST_IGNORE` is the honest way to park a test
+you have stubbed out but not finished, so it shows up as ignored in the report
+instead of silently passing, which makes it a good marker for a to-do. `TEST_PASS`
+aborts a test early and calls it a success; it is rare, and forcing a pass on
+something you have not actually verified is a bad habit, so treat it as a tool to
+recognize rather than reach for.
+
+## Practical Tips
+
+A few habits make these assertions pay off in embedded work specifically.
+
+- **Prefer exact-width assertions.** If a register is a `uint16_t`, check it with
+  `TEST_ASSERT_EQUAL_UINT16` rather than the generic `INT` form. Pinning the width
+  avoids surprises from integer promotion.
+- **Be explicit about floating-point precision.** When the platform or compiler
+  settings make the default tolerance too loose or too tight, reach for the
+  `_WITHIN` variant and state the domain-specific tolerance you actually need.
+- **Compare structs with care.** `TEST_ASSERT_EQUAL_MEMORY` works well when you
+  control the packing and know the layout, but remember it compares padding bytes
+  too, so uninitialized padding can make it fail. When that is a risk, assert field
+  by field instead.
+- **Pick the right array check.** Use the `_ARRAY` assertions when two arrays should
+  match element by element, and `EACH_EQUAL` when every element should hold the same
+  constant value.
