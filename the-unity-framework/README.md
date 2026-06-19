@@ -467,3 +467,81 @@ TEST(Packet, HeaderMatchesElementByElement)
 ```
 
 The whole module lives in `src/packet.c` and `tests/packet_test.c`.
+
+## Each-Equal Assertions
+
+Sometimes you do not compare two arrays, you check that every element of one array
+equals the same scalar value. The `EACH_EQUAL` family does exactly that, with a
+variant for each type. They take the expected scalar, the array, and the element
+count.
+
+| Assertion | Checks every element equals |
+|---|---|
+| `TEST_ASSERT_EACH_EQUAL_INT` and `INT8/16/32/64` | a signed integer scalar |
+| `TEST_ASSERT_EACH_EQUAL_UINT` and `UINT8/16/32/64` | an unsigned integer scalar |
+| `TEST_ASSERT_EACH_EQUAL_HEX` and `HEX8/16/32/64` | a scalar, reported in hex |
+| `TEST_ASSERT_EACH_EQUAL_PTR` | the same pointer |
+| `TEST_ASSERT_EACH_EQUAL_STRING` | the same string |
+| `TEST_ASSERT_EACH_EQUAL_MEMORY` | the same memory block |
+
+The `adc` example fills a buffer with a baseline and checks that it took:
+
+```c
+TEST(Adc, FillSetsEverySampleToTheBaseline)
+{
+    uint16_t samples[4];
+
+    Adc_Fill(samples, 2048, 4);
+
+    /* EACH_EQUAL: every element of the array equals the same scalar. */
+    TEST_ASSERT_EACH_EQUAL_UINT16(2048, samples, 4);
+}
+```
+
+## Floating-Point Assertions
+
+Floats cannot be compared with plain equality, since rounding makes two values that
+should match differ in their last bits. Unity handles this for you: `EQUAL_FLOAT`
+applies a small built-in tolerance, and `FLOAT_WITHIN` lets you choose your own
+delta, just like the integer `WITHIN` assertions.
+
+| Assertion | Checks |
+|---|---|
+| `TEST_ASSERT_EQUAL_FLOAT(expected, actual)` | the two floats match within Unity's default tolerance |
+| `TEST_ASSERT_FLOAT_WITHIN(delta, expected, actual)` | they match within a delta you supply |
+| `TEST_ASSERT_EQUAL_FLOAT_ARRAY` | two float arrays match element by element |
+| `TEST_ASSERT_EACH_EQUAL_FLOAT` | every element of a float array equals one scalar |
+| `TEST_ASSERT_FLOAT_IS_INF` / `IS_NEG_INF` | the value is positive / negative infinity |
+| `TEST_ASSERT_FLOAT_IS_NAN` | the value is not-a-number |
+| `TEST_ASSERT_FLOAT_IS_DETERMINATE` | the value is a normal, finite number |
+| `TEST_ASSERT_FLOAT_IS_NOT_INF` / `NOT_NAN` / `NOT_DETERMINATE` | the negated forms of the checks above |
+
+The special-value checks matter more than they first appear. A computation that
+overflows or divides badly can quietly produce `NaN` or infinity, and if that slips
+through it tends to surface much later as a baffling bug. Asserting that a result is
+determinate catches it right where it happens. The `adc` example converts a raw
+reading and guards both the value and its sanity:
+
+```c
+TEST(Adc, ConvertsRawReadingToVolts)
+{
+    /* EQUAL_FLOAT uses a built-in tolerance, WITHIN lets you set your own. */
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, Adc_ToVolts(0));
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 3.3f, Adc_ToVolts(4095));
+}
+
+TEST(Adc, ConversionIsAlwaysAFiniteNumber)
+{
+    float volts = Adc_ToVolts(1000);
+
+    TEST_ASSERT_FLOAT_IS_DETERMINATE(volts);
+    TEST_ASSERT_FLOAT_IS_NOT_NAN(volts);
+}
+```
+
+Doubles get the same set of assertions under `DOUBLE` names, such as
+`TEST_ASSERT_EQUAL_DOUBLE` and `TEST_ASSERT_DOUBLE_WITHIN`. They are turned off by
+default to save space, so you enable them by defining `UNITY_INCLUDE_DOUBLE` in your
+Unity configuration before they will compile.
+
+The whole module lives in `src/adc.c` and `tests/adc_test.c`.
