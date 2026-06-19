@@ -6,6 +6,7 @@ static void RunAllTests(void)
     RUN_TEST_GROUP(GpioReg);
     RUN_TEST_GROUP(Sensor);
     RUN_TEST_GROUP(Packet);
+    RUN_TEST_GROUP(Adc);
 }
 
 int main(int argc, const char *argv[])
