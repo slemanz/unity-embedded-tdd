@@ -22,8 +22,7 @@ INCLUDES += -I $(TEST_DIR)
 OBJS      += $(BUILD_DIR)/example.o
 
 # Test cases and the runner
-TEST_OBJS += $(BUILD_DIR)/example_test.o
-TEST_OBJS += $(BUILD_DIR)/AllTestRunner.o
+TEST_OBJS += $(BUILD_DIR)/test_unity_assertions.o
 
 # Unity framework
 UNITY     += $(BUILD_DIR)/unity.o
