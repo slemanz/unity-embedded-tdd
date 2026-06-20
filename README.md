@@ -5,4 +5,5 @@
 - Configuring
 - First Examples
 - The Unity Framework
+- Unity Assertions
 
