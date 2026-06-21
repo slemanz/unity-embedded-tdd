@@ -3,7 +3,10 @@
 #include <string.h>
 #include <math.h>
 
-#define DEMO_ENABLE_FAILS           1
+#define DEMO_ENABLE_FAILS           0
+
+void setUp(void){}
+void tearDown(void){}
 
 // 1 Boolean and pointer validations
 void test_bool_ptr_should_pass(void){
@@ -31,7 +34,10 @@ int main(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_bool_ptr_should_pass);
+
+#if DEMO_ENABLE_FAILS
     RUN_TEST(test_bool_ptr_should_fail);
+#endif
 
     return UNITY_END();
 }

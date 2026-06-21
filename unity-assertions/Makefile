@@ -26,7 +26,6 @@ TEST_OBJS += $(BUILD_DIR)/test_unity_assertions.o
 
 # Unity framework
 UNITY     += $(BUILD_DIR)/unity.o
-UNITY     += $(BUILD_DIR)/unity_fixture.o
 
 all: $(BUILD_DIR) $(BUILD_DIR)/run_tests
 
