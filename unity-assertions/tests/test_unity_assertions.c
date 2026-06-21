@@ -8,7 +8,7 @@
 void setUp(void){}
 void tearDown(void){}
 
-// 1 Boolean and pointer validations
+// 1) Boolean and pointer validations
 void test_bool_ptr_should_pass(void){
     int x = 123;
     TEST_ASSERT(1);
@@ -29,14 +29,53 @@ void test_bool_ptr_should_fail(void){
 }
 #endif
 
+// 2) Integer equality assertions
+void test_integer_equality_should_pass(void){
+    TEST_ASSERT_EQUAL(7, 7);
+    TEST_ASSERT_EQUAL_INT(-42, -42);                // alias of TEST
+
+    TEST_ASSERT_EQUAL_INT8((int8_t)-5, (int8_t)-5);
+    TEST_ASSERT_EQUAL_INT16((int16_t)-1234, (int16_t)-1234);
+    TEST_ASSERT_EQUAL_INT32(-123456, -123456);
+
+    TEST_ASSERT_EQUAL_UINT(42u, 42u);
+    TEST_ASSERT_EQUAL_UINT8((uint8_t)200, (uint8_t)200);
+    TEST_ASSERT_EQUAL_UINT16((uint16_t)65500, (uint16_t)65500);
+    TEST_ASSERT_EQUAL_UINT32((uint32_t)0xDEADBEEF, (uint32_t)0xDEADBEEF);
+}
+
+#if DEMO_ENABLE_FAILS
+void test_integer_equality_should_fail(void){
+    TEST_ASSERT_EQUAL_INT(10, 11);
+    TEST_ASSERT_EQUAL_UINT8((uint8_t)1, (uint8_t)2);
+}
+#endif
+
+// 3) Hexadecimal equality assertions
+void test_hex_equality_should_pass(void){
+    TEST_ASSERT_EQUAL_HEX8(0xAB, 0xAB);
+    TEST_ASSERT_EQUAL_HEX16(0xBEEF, 0xBEEF);
+    TEST_ASSERT_EQUAL_HEX32(0xA5A5C3C3, 0xA5A5C3C3);
+}
+
+#if DEMO_ENABLE_FAILS
+void test_hex_equality_should_fail(void){
+    TEST_ASSERT_EQUAL_HEX8(0xAA, 0xAB);
+}
+#endif
+
 
 int main(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_bool_ptr_should_pass);
+    RUN_TEST(test_integer_equality_should_pass);
+    RUN_TEST(test_hex_equality_should_pass);
 
 #if DEMO_ENABLE_FAILS
     RUN_TEST(test_bool_ptr_should_fail);
+    RUN_TEST(test_integer_equality_should_fail);
+    RUN_TEST(test_hex_equality_should_fail);
 #endif
 
     return UNITY_END();
