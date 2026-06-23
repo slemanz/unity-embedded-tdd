@@ -93,9 +93,24 @@ void test_relational_should_pass(void)
 }
 
 #if DEMO_ENABLE_FAILS
-void test_relational_should_fail(void){
+void test_relational_should_fail(void)
+{
     TEST_ASSERT_GREATER_THAN(10, 11);       // equal is not greater
     TEST_ASSERT_LESS_THAN(10, 10);          // equal is not less
+}
+#endif
+
+// 6) Integer range checks (within delta)
+void test_within_delta_should_pass(void)
+{
+    TEST_ASSERT_INT_WITHIN(2, 100, 101);    // |101 - 100| <= 2
+    TEST_ASSERT_UINT_WITHIN(1, 5u, 6u);     // |6 - 5| <= 1
+}
+
+#if DEMO_ENABLE_FAILS
+void test_within_delta_should_fail(void)
+{
+    TEST_ASSERT_INT_WITHIN(1, 100, 103);    // delta too large
 }
 #endif
 
@@ -108,6 +123,7 @@ int main(void)
     RUN_TEST(test_hex_equality_should_pass);
     RUN_TEST(test_bitmask_and_bit_level_should_pass);
     RUN_TEST(test_relational_should_pass);
+    RUN_TEST(test_within_delta_should_pass);
 
 #if DEMO_ENABLE_FAILS
     RUN_TEST(test_bool_ptr_should_fail);
@@ -115,6 +131,7 @@ int main(void)
     RUN_TEST(test_hex_equality_should_fail);
     RUN_TEST(test_bitmask_and_bit_level_should_fail);
     RUN_TEST(test_relational_should_fail);
+    RUN_TEST(test_within_delta_should_fail);
 #endif
 
     return UNITY_END();
