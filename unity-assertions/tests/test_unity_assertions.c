@@ -177,6 +177,30 @@ void test_array_equality_should_fail(void)
 }
 #endif
 
+// 9) Arrays compared to a single value
+struct Pair {uint8_t a, b;};
+
+void test_each_equal_should_pass(void)
+{
+    uint16_t arr_u16[4] = {7, 7, 7, 7};
+    TEST_ASSERT_EACH_EQUAL_UINT16(7, arr_u16, 4);
+
+    const char* sarr[3] = {"OK", "OK", "OK"};
+    TEST_ASSERT_EACH_EQUAL_STRING("OK", sarr, 3);
+
+    struct Pair expected = {1, 2};
+    struct Pair parr[2] = {{1, 2}, {1, 2}};
+    TEST_ASSERT_EACH_EQUAL_MEMORY(&expected, parr, sizeof(struct Pair), 2);
+}
+
+#if DEMO_ENABLE_FAILS
+void test_each_equal_should_fail(void)
+{
+    uint16_t arr_u16[3] = {7, 7, 8};
+    TEST_ASSERT_EACH_EQUAL_UINT16(7, arr_u16, 3);
+}
+#endif
+
 
 int main(void)
 {
@@ -189,6 +213,7 @@ int main(void)
     RUN_TEST(test_within_delta_should_pass);
     RUN_TEST(test_ptr_string_memory_should_pass);
     RUN_TEST(test_array_equality_should_pass);
+    RUN_TEST(test_each_equal_should_pass);
 
 #if DEMO_ENABLE_FAILS
     RUN_TEST(test_bool_ptr_should_fail);
@@ -199,6 +224,7 @@ int main(void)
     RUN_TEST(test_within_delta_should_fail);
     RUN_TEST(test_ptr_string_memory_should_fail);
     RUN_TEST(test_array_equality_should_fail);
+    RUN_TEST(test_each_equal_should_fail);
 #endif
 
     return UNITY_END();
