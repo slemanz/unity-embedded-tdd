@@ -45,5 +45,12 @@ $(BUILD_DIR)/run_tests: $(TEST_OBJS) $(OBJS) $(UNITY)
 	$(CC) -o $@ $^
 	./$@
 
+fail: $(BUILD_DIR) $(OBJS) $(UNITY)
+	$(CC) $(CFLAGS) -DDEMO_ENABLE_FAILS=1 $(INCLUDES) -o $(BUILD_DIR)/test_unity_assertions_fail.o $(TEST_DIR)/test_unity_assertions.c
+	$(CC) -o $(BUILD_DIR)/run_tests_fail $(BUILD_DIR)/test_unity_assertions_fail.o $(OBJS) $(UNITY)
+	./$(BUILD_DIR)/run_tests_fail
+
 clean:
 	rm -rf $(BUILD_DIR)/*
+
+.PHONY: all fail clean
