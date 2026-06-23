@@ -3,7 +3,9 @@
 #include <string.h>
 #include <math.h>
 
+#ifndef DEMO_ENABLE_FAILS
 #define DEMO_ENABLE_FAILS           0
+#endif
 
 void setUp(void){}
 void tearDown(void){}
@@ -83,6 +85,20 @@ void test_bitmask_and_bit_level_should_fail(void){
 }
 #endif
 
+// 5) Relational comparisons
+void test_relational_should_pass(void)
+{
+    TEST_ASSERT_GREATER_THAN(10, 11);       // actual > threshold
+    TEST_ASSERT_LESS_THAN(10, 9);           // actual > threshold
+}
+
+#if DEMO_ENABLE_FAILS
+void test_relational_should_fail(void){
+    TEST_ASSERT_GREATER_THAN(10, 11);       // equal is not greater
+    TEST_ASSERT_LESS_THAN(10, 10);          // equal is not less
+}
+#endif
+
 
 int main(void)
 {
@@ -91,12 +107,14 @@ int main(void)
     RUN_TEST(test_integer_equality_should_pass);
     RUN_TEST(test_hex_equality_should_pass);
     RUN_TEST(test_bitmask_and_bit_level_should_pass);
+    RUN_TEST(test_relational_should_pass);
 
 #if DEMO_ENABLE_FAILS
     RUN_TEST(test_bool_ptr_should_fail);
     RUN_TEST(test_integer_equality_should_fail);
     RUN_TEST(test_hex_equality_should_fail);
     RUN_TEST(test_bitmask_and_bit_level_should_fail);
+    RUN_TEST(test_relational_should_fail);
 #endif
 
     return UNITY_END();
