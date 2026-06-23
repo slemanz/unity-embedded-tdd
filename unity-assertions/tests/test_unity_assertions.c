@@ -64,6 +64,25 @@ void test_hex_equality_should_fail(void){
 }
 #endif
 
+// 4) Bitmask and bit-level assertions
+void test_bitmask_and_bit_level_should_pass(void)
+{
+    uint8_t actual = 0xA0;                  // 1010 0000
+    TEST_ASSERT_BITS(0xF0, 0xA0, actual);   // only upper nibble compared
+    TEST_ASSERT_BITS_HIGH(0xA0, actual);    // bits 7 and 5 high
+    TEST_ASSERT_BITS_LOW(0x0A, actual);     // lower nibble low
+    TEST_ASSERT_BIT_HIGH(7, actual);
+    TEST_ASSERT_BIT_LOW(0, actual);
+}
+
+#if DEMO_ENABLE_FAILS
+void test_bitmask_and_bit_level_should_fail(void){
+    uint8_t actual = 0x20;                  // 0010 0000
+    TEST_ASSERT_BITS(0xF0, 0xA0, actual);   // expected upper nibble A, actual is 2
+    TEST_ASSERT_BIT_LOW(5, actual);         // bit 5 isactually high
+}
+#endif
+
 
 int main(void)
 {
@@ -71,11 +90,13 @@ int main(void)
     RUN_TEST(test_bool_ptr_should_pass);
     RUN_TEST(test_integer_equality_should_pass);
     RUN_TEST(test_hex_equality_should_pass);
+    RUN_TEST(test_bitmask_and_bit_level_should_pass);
 
 #if DEMO_ENABLE_FAILS
     RUN_TEST(test_bool_ptr_should_fail);
     RUN_TEST(test_integer_equality_should_fail);
     RUN_TEST(test_hex_equality_should_fail);
+    RUN_TEST(test_bitmask_and_bit_level_should_fail);
 #endif
 
     return UNITY_END();
