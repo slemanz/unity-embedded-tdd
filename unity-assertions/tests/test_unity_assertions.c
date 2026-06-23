@@ -114,6 +114,35 @@ void test_within_delta_should_fail(void)
 }
 #endif
 
+// 7) Pointers, strings, and raw memory
+void test_ptr_string_memory_should_pass(void)
+{
+    int x;
+    int* p = &x;
+    TEST_ASSERT_EQUAL_PTR(&x, p);
+
+    TEST_ASSERT_EQUAL_STRING("embedded", "embedded");
+    TEST_ASSERT_EQUAL_STRING_LEN("firmwareX", "firmwareY", 8); // first 8 match "firmware"
+
+    uint8_t exp[4] = {1, 2, 3, 4};
+    uint8_t act[4] = {1, 2, 3, 4};
+    TEST_ASSERT_EQUAL_MEMORY(exp, act, sizeof exp);
+}
+
+#if DEMO_ENABLE_FAILS
+void test_ptr_string_memory_should_fail(void)
+{
+    int a, b;
+    TEST_ASSERT_EQUAL_PTR(&a, &b);
+
+    TEST_ASSERT_EQUAL_STRING("abc", "abd");
+
+    uint8_t exp[3] = {1, 2, 3};
+    uint8_t act[3] = {1, 2, 4};
+    TEST_ASSERT_EQUAL_MEMORY(exp, act, sizeof exp);
+}
+#endif
+
 
 int main(void)
 {
@@ -124,6 +153,7 @@ int main(void)
     RUN_TEST(test_bitmask_and_bit_level_should_pass);
     RUN_TEST(test_relational_should_pass);
     RUN_TEST(test_within_delta_should_pass);
+    RUN_TEST(test_ptr_string_memory_should_pass);
 
 #if DEMO_ENABLE_FAILS
     RUN_TEST(test_bool_ptr_should_fail);
@@ -132,6 +162,7 @@ int main(void)
     RUN_TEST(test_bitmask_and_bit_level_should_fail);
     RUN_TEST(test_relational_should_fail);
     RUN_TEST(test_within_delta_should_fail);
+    RUN_TEST(test_ptr_string_memory_should_fail);
 #endif
 
     return UNITY_END();
