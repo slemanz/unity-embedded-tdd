@@ -143,6 +143,40 @@ void test_ptr_string_memory_should_fail(void)
 }
 #endif
 
+// 8) array equality assertions
+void test_array_equality_should_pass(void)
+{
+    int16_t ei[3] = {-1, 2, -3};
+    int16_t ai[3] = {-1, 2, -3};
+    TEST_ASSERT_EQUAL_INT16_ARRAY(ei, ai, 3);
+
+    uint8_t eu[4] = {1, 2, 3, 4};
+    uint8_t au[4] = {1, 2, 3, 4};
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(eu, au, 4);
+
+    const char* es[2] = {"OK", "OK"};
+    const char* as[2] = {"OK", "OK"};
+    TEST_ASSERT_EQUAL_STRING_ARRAY(es, as, 2);
+
+    int x = 1, y = 2;
+    void* ep[2] = {&x, &y};
+    void* ap[2] = {&x, &y};
+    TEST_ASSERT_EQUAL_PTR_ARRAY(ep, ap, 2);
+
+    uint8_t emem[2][3] = {{1, 2, 3}, {4, 5, 6}};
+    uint8_t amem[2][3] = {{1, 2, 3}, {4, 5, 6}};
+    TEST_ASSERT_EQUAL_MEMORY_ARRAY(emem, amem, 3, 2);   // element size 3, count 2
+}
+
+#if DEMO_ENABLE_FAILS
+void test_array_equality_should_fail(void)
+{
+    uint8_t e[3] = {1, 2, 3};
+    uint8_t a[3] = {1, 2, 99};
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(e, a, 3);
+}
+#endif
+
 
 int main(void)
 {
@@ -154,6 +188,7 @@ int main(void)
     RUN_TEST(test_relational_should_pass);
     RUN_TEST(test_within_delta_should_pass);
     RUN_TEST(test_ptr_string_memory_should_pass);
+    RUN_TEST(test_array_equality_should_pass);
 
 #if DEMO_ENABLE_FAILS
     RUN_TEST(test_bool_ptr_should_fail);
@@ -163,6 +198,7 @@ int main(void)
     RUN_TEST(test_relational_should_fail);
     RUN_TEST(test_within_delta_should_fail);
     RUN_TEST(test_ptr_string_memory_should_fail);
+    RUN_TEST(test_array_equality_should_fail);
 #endif
 
     return UNITY_END();
