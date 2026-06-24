@@ -201,6 +201,31 @@ void test_each_equal_should_fail(void)
 }
 #endif
 
+// 10) Floating point assertions
+void test_float_should_pass(void)
+{
+    TEST_ASSERT_EQUAL_FLOAT(1.5f, 1.5f);
+    TEST_ASSERT_FLOAT_WITHIN(0.1f, 3.14f, 3.145f);
+
+    float farr[3] = {2.0f, 2.0f, 2.0f};
+    TEST_ASSERT_EACH_EQUAL_FLOAT(2.0f, farr, 3);
+
+    TEST_ASSERT_FLOAT_IS_INF(INFINITY);
+    TEST_ASSERT_FLOAT_IS_NAN(NAN);
+    TEST_ASSERT_FLOAT_IS_DETERMINATE(0.0f);
+
+    TEST_ASSERT_FLOAT_IS_NOT_INF(1.0f);
+    TEST_ASSERT_FLOAT_IS_NOT_NEG_INF(1.0f);
+    TEST_ASSERT_FLOAT_IS_NOT_NAN(1.0f);
+}
+
+#if DEMO_ENABLE_FAILS
+void test_float_should_fail(void)
+{
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 1.0f, 1.01f); // outside tolerance
+}
+#endif
+
 
 int main(void)
 {
@@ -214,6 +239,7 @@ int main(void)
     RUN_TEST(test_ptr_string_memory_should_pass);
     RUN_TEST(test_array_equality_should_pass);
     RUN_TEST(test_each_equal_should_pass);
+    RUN_TEST(test_float_should_pass);
 
 #if DEMO_ENABLE_FAILS
     RUN_TEST(test_bool_ptr_should_fail);
@@ -225,6 +251,7 @@ int main(void)
     RUN_TEST(test_ptr_string_memory_should_fail);
     RUN_TEST(test_array_equality_should_fail);
     RUN_TEST(test_each_equal_should_fail);
+    RUN_TEST(test_float_should_fail);
 #endif
 
     return UNITY_END();
