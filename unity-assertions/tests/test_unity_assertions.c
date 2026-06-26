@@ -226,6 +226,24 @@ void test_float_should_fail(void)
 }
 #endif
 
+// 11) Flow control helpers often seen in tests
+void test_flow_control_pass_message(void)
+{
+    TEST_PASS_MESSAGE("Deliberate pass using TEST_PASS_MESSAGE");
+    // any code here will not run because TEST_PASS_MESSAGE aborts the test as passed
+}
+
+#if DEMO_ENABLE_FAILS
+void test_flow_control_fail_message(void)
+{
+    TEST_FAIL_MESSAGE("Deliberate failure using TEST_FAIL_MESSAGE");
+}
+#endif
+
+void test_flow_control_ignore_message(void)
+{
+    TEST_IGNORE_MESSAGE("Temporarily ignored for demonstration");
+}
 
 int main(void)
 {
@@ -240,6 +258,8 @@ int main(void)
     RUN_TEST(test_array_equality_should_pass);
     RUN_TEST(test_each_equal_should_pass);
     RUN_TEST(test_float_should_pass);
+    RUN_TEST(test_flow_control_pass_message);
+    RUN_TEST(test_flow_control_ignore_message);
 
 #if DEMO_ENABLE_FAILS
     RUN_TEST(test_bool_ptr_should_fail);
@@ -252,6 +272,7 @@ int main(void)
     RUN_TEST(test_array_equality_should_fail);
     RUN_TEST(test_each_equal_should_fail);
     RUN_TEST(test_float_should_fail);
+    RUN_TEST(test_flow_control_fail_message);
 #endif
 
     return UNITY_END();
