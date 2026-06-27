@@ -22,7 +22,7 @@ typedef struct{
 extern RCC_TypeDef RCC_;
 extern GPIO_TypeDef GPIOA_;
 
-#define RCC         (&RCC)
+#define RCC         (&RCC_)
 #define GPIOA       (&GPIOA_)
 
 #endif /* FAKE_STM32F4XX_H_ */
