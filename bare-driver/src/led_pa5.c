@@ -18,6 +18,16 @@ void led_init(void)
     RCC->AHB1ENR |= GPIOAEN;
 
     GPIOA->MODER = (GPIOA->MODER & ~MODE_BITS(LED_PIN_INDEX))
-                    | MODE_OUT(LED_PIN_INDEX);      /* set PA5 output mode */
+                    | MODE_OUT(LED_PIN_INDEX);          /* set PA5 output mode */
+
+    GPIOA->OTYPER &= ~LED_PIN_MASK;                     /* push-pull */
+
+    GPIOA->OSPEED = (GPIOA->OSPEED & ~MODE_BITS(LED_PIN_INDEX))
+                    | (0x1u << (LED_PIN_INDEX * 2u));   /* medium speed */
+
+    GPIOA->PUPDR = (GPIOA->PUPDR & ~PUPD_BITS(LED_PIN_INDEX))
+                    | PUPD_NODE(LED_PIN_INDEX);         /* no pull up/down */
+    
+    GPIOA->BSRR = (LED_PIN_MASK << 16);                 /* ensure OFF via reset halfword */
 
 }

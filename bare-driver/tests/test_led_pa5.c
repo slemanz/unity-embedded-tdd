@@ -28,5 +28,18 @@ void test_led_init_enables_gpioa_and_configures_pa5_output_start_off(void)
     const uint32_t moder_mask   = (0x3u << (5u * 2));   /* MODER[11:10] */
     const uint32_t moder_out    = (0x1 << (5u * 2));    /* 01b output */
     TEST_ASSERT_BITS(moder_mask, moder_out, GPIOA->MODER);
+
+    TEST_ASSERT_BIT_LOW(5, GPIOA->OTYPER);              /* push-pull */
+
+    const uint32_t ospeed_mask  = (0x3u << (5u * 2));   /* OSPEED[11:10] */
+    const uint32_t ospeed_med   = (0x1 << (5u * 2));    /* 01b medium speed */
+    TEST_ASSERT_BITS(ospeed_mask, ospeed_med, GPIOA->OSPEED);
+
+    const uint32_t pupd_mask    = (0x3u << (5u * 2));   /* PUPDR[11:10] */
+    const uint32_t pupd_none    = (0x0 << (5u * 2));    /* 00b no pull */
+    TEST_ASSERT_BITS(pupd_mask, pupd_none, GPIOA->PUPDR);
+
+    TEST_ASSERT_BIT_LOW(5, GPIOA->ODR);                 /* LED starts OFF */
+    TEST_ASSERT_BIT_HIGH(5u + 16u, GPIOA->BSRR);        /* BR5 reset bit set */
 }
 
