@@ -24,5 +24,9 @@ void test_led_init_enables_gpioa_and_configures_pa5_output_start_off(void)
 {
     led_init();     // act
     TEST_ASSERT_BIT_HIGH(0, RCC->AHB1ENR);
+
+    const uint32_t moder_mask   = (0x3u << (5u * 2));   /* MODER[11:10] */
+    const uint32_t moder_out    = (0x1 << (5u * 2));    /* 01b output */
+    TEST_ASSERT_BITS(moder_mask, moder_out, GPIOA->MODER);
 }
 

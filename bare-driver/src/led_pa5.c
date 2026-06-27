@@ -16,4 +16,8 @@
 void led_init(void)
 {
     RCC->AHB1ENR |= GPIOAEN;
+
+    GPIOA->MODER = (GPIOA->MODER & ~MODE_BITS(LED_PIN_INDEX))
+                    | MODE_OUT(LED_PIN_INDEX);      /* set PA5 output mode */
+
 }
