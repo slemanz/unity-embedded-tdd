@@ -31,3 +31,26 @@ void led_init(void)
     GPIOA->BSRR = (LED_PIN_MASK << 16);                 /* ensure OFF via reset halfword */
 
 }
+
+/* Atomically set PA5 high using BSRR set halfword only */
+void led_on(void)
+{
+    GPIOA->BSRR = LED_PIN_MASK;                 /* write set bit */
+}
+
+/* Atomically reset PA5 low using BSRR reset halfword only */
+void led_off(void)
+{
+    GPIOA->BSRR = (LED_PIN_MASK << 16);
+}
+
+/* Toggle PA5 by reading ODR and writing the opposite halfword */
+void led_toggle(void)
+{
+    if(GPIOA->ODR & LED_PIN_MASK){
+        GPIOA->BSRR = (LED_PIN_MASK << 16);
+    }else
+    {
+        GPIOA->BSRR = LED_PIN_MASK;
+    }
+}
