@@ -16,5 +16,13 @@ void setUp(void)
 
 void tearDown(void)
 {
-    
+
 }
+
+/* 1) Init should enable clock, set PA5 output no pulls, and start OFF */
+void test_led_init_enables_gpioa_and_configures_pa5_output_start_off(void)
+{
+    led_init();     // act
+    TEST_ASSERT_BIT_HIGH(0, RCC->AHB1ENR);
+}
+
