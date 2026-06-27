@@ -2,7 +2,7 @@
 #include "led_pa5.h"                /* Driver API */
 
 /* Bit helpers and constants */
-#define GPIOAEN             (1u << 5)               /* RCC AHB1 enable bit for GPIOA */
+#define GPIOAEN             (1u << 0)               /* RCC AHB1 enable bit for GPIOA */
 #define LED_PIN_INDEX       5u                      /* PA5 user LED index */
 #define LED_PIN_MASK        (1u << LED_PIN_INDEX)   /* PA5 bit mask */
 

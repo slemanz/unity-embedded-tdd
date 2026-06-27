@@ -19,15 +19,15 @@ INCLUDES += -I $(TEST_DIR)
 ############################################
 
 # Production code under test
-OBJS      += $(BUILD_DIR)/example.o
+OBJS      += $(BUILD_DIR)/led_pa5.o
+OBJS      += $(BUILD_DIR)/fake_stm32f4xx.o
 
 # Test cases and the runner
-TEST_OBJS += $(BUILD_DIR)/example_test.o
-TEST_OBJS += $(BUILD_DIR)/AllTestRunner.o
+TEST_OBJS += $(BUILD_DIR)/test_led_pa5.o
+TEST_OBJS += $(BUILD_DIR)/test_runner.o
 
 # Unity framework
 UNITY     += $(BUILD_DIR)/unity.o
-UNITY     += $(BUILD_DIR)/unity_fixture.o
 
 all: $(BUILD_DIR) $(BUILD_DIR)/run_tests
 
