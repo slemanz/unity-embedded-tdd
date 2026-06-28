@@ -90,3 +90,20 @@ void test_led_init_does_not_touch_other_pins(void)
     uint32_t after_pa0_moder = GPIOA->MODER & (0x3u << (0u*2u));
     TEST_ASSERT_EQUAL_HEX32(before_pa0_moder, after_pa0_moder); /* unchanged */
 }
+
+/* 6) Calling init twice should be idempotent on visible fields */
+void test_led_init_is_idempotent(void)
+{
+    led_init();
+
+    uint32_t m1 = GPIOA->MODER;
+    uint32_t p1 = GPIOA->PUPDR;
+    uint32_t t1 = GPIOA->OTYPER;
+    uint32_t s1 = GPIOA->OSPEED;
+
+    led_init();
+    TEST_ASSERT_EQUAL_HEX32(m1, GPIOA->MODER);
+    TEST_ASSERT_EQUAL_HEX32(p1, GPIOA->PUPDR);
+    TEST_ASSERT_EQUAL_HEX32(t1, GPIOA->OTYPER);
+    TEST_ASSERT_EQUAL_HEX32(s1, GPIOA->OSPEED);
+}
