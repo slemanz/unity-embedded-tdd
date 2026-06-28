@@ -64,3 +64,19 @@ void test_led_off_sets_bsrr_reset_bit_only(void)
     TEST_ASSERT_BITS_HIGH(BIT(5 + 16u), GPIOA->BSRR);   /* reset halfword written */
     TEST_ASSERT_EQUAL_HEX32(before_odr, GPIOA->ODR);    /* ODR untouched */
 }
+
+/* 4) toggle chooses set or reset based on ODR bit */
+void test_led_toggle_uses_odr_to_choose_set_or_reset(void)
+{
+    led_init();
+
+    GPIOA->ODR |= BIT(5u);                             /* pretend LED high */
+    GPIOA->BSRR = 0u;
+    led_toggle();
+    TEST_ASSERT_BITS_HIGH(BIT(5u + 16u), GPIOA->BSRR);  /* choose reset */
+
+    GPIOA->ODR &= ~BIT(5u);                             /* pretend LED low */
+    GPIOA->BSRR = 0u;
+    led_toggle();
+    TEST_ASSERT_BITS_HIGH(BIT(5u), GPIOA->BSRR);        /* chose set*/
+}
