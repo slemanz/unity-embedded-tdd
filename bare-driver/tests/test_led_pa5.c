@@ -43,3 +43,13 @@ void test_led_init_enables_gpioa_and_configures_pa5_output_start_off(void)
     TEST_ASSERT_BIT_HIGH(5u + 16u, GPIOA->BSRR);        /* BR5 reset bit set */
 }
 
+/* 2) led_on must only use BSRR set halfword */
+void test_led_on_sets_bsrr_set_bit_only(void)
+{
+    led_init();
+    GPIOA->BSRR = 0u;
+    uint32_t before_odr = GPIOA->ODR;
+    led_on();
+    TEST_ASSERT_BITS_HIGH(BIT(5), GPIOA->BSRR);
+    TEST_ASSERT_EQUAL_HEX32(before_odr, GPIOA->ODR);
+}
