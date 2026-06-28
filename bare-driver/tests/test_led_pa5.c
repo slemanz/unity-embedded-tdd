@@ -80,3 +80,13 @@ void test_led_toggle_uses_odr_to_choose_set_or_reset(void)
     led_toggle();
     TEST_ASSERT_BITS_HIGH(BIT(5u), GPIOA->BSRR);        /* chose set*/
 }
+
+/* 5) Init must not disturb unrelated PA pins */
+void test_led_init_does_not_touch_other_pins(void)
+{
+    GPIOA->MODER |= (0x3u << (0u * 2u));                /* seed PA0 = 11b (analog) */
+    uint32_t before_pa0_moder = GPIOA->MODER & (0x3u << (0u * 2u));
+    led_init();
+    uint32_t after_pa0_moder = GPIOA->MODER & (0x3u << (0u*2u));
+    TEST_ASSERT_EQUAL_HEX32(before_pa0_moder, after_pa0_moder); /* unchanged */
+}
