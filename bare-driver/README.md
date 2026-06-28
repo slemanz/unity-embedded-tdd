@@ -86,3 +86,34 @@ A successful run ends with `OK`; any failure prints the file, line, and the
 expected-versus-actual values, in hex for register fields. When you add a module,
 extend the `OBJS` and `TEST_OBJS` lists in the Makefile and register the new test
 functions in [`tests/test_runner.c`](tests/test_runner.c).
+
+## Applying This to a Real Project
+
+Everything above runs on the host. To put the same driver on a real STM32, you
+change one thing: the register header. The driver includes `fake_stm32f4xx.h`, but
+that include is the only line tying it to the fake. Point it at the vendor CMSIS
+header (`stm32f4xx.h`) instead, where `RCC` and `GPIOA` expand to the real
+peripheral addresses, and `led_pa5.c` compiles unchanged for the chip. The fields
+match because the fake was modeled after the real registers in the first place.
+
+In practice you keep both builds side by side:
+
+1. **Structure the driver so the chip header is the seam.** Keep all hardware
+   access behind names like `RCC` and `GPIOA` that the header provides. Do not
+   bake fixed addresses into the driver, and keep `fake_stm32f4xx.h` a faithful
+   subset of the real layout so the same code reads correctly on both sides.
+2. **Build for the host in CI.** This Makefile is your fast path. Every push runs
+   the suite under `gcc` in seconds, with no hardware in the loop, and catches the
+   bit-level mistakes that are painful to find on a board.
+3. **Build for the target with your firmware toolchain.** A second build uses
+   `arm-none-eabi-gcc`, the vendor CMSIS headers, a startup file, and a linker
+   script to produce the `.elf`/`.bin` you flash. The driver source is the same
+   file the host tests already proved.
+4. **Test logic on the host, verify integration on the board.** Host tests answer
+   "does the driver set the right bits?" They cannot tell you the clock tree is
+   configured or the pin is wired to the LED you think it is. Save the board for
+   that last mile, and keep the register-level logic where it is cheap to test.
+
+The payoff is that the slow, error-prone part of bare-metal work, getting the
+register writes exactly right, moves into a fast feedback loop you can run anywhere,
+while the board is reserved for the things only real hardware can confirm.
