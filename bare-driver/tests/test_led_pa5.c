@@ -50,7 +50,7 @@ void test_led_on_sets_bsrr_set_bit_only(void)
     GPIOA->BSRR = 0u;                                   /* Clear observable write */
     uint32_t before_odr = GPIOA->ODR;                   /* snapshot ODR */
     led_on();                                           /* act */
-    TEST_ASSERT_BITS_HIGH(BIT(5), GPIOA->BSRR);         /* set halfword written */
+    TEST_ASSERT_EQUAL_HEX32(BIT(5), GPIOA->BSRR);       /* set halfword only */
     TEST_ASSERT_EQUAL_HEX32(before_odr, GPIOA->ODR);    /* ODR untouched */
 }
 
@@ -61,7 +61,7 @@ void test_led_off_sets_bsrr_reset_bit_only(void)
     GPIOA->BSRR = 0u;                                   /* clear observable write */
     uint32_t before_odr = GPIOA->ODR;                   /* snapshot ODR */
     led_off();                                          /* act */
-    TEST_ASSERT_BITS_HIGH(BIT(5 + 16u), GPIOA->BSRR);   /* reset halfword written */
+    TEST_ASSERT_EQUAL_HEX32(BIT(5 + 16u), GPIOA->BSRR); /* reset halfword only */
     TEST_ASSERT_EQUAL_HEX32(before_odr, GPIOA->ODR);    /* ODR untouched */
 }
 
@@ -73,22 +73,32 @@ void test_led_toggle_uses_odr_to_choose_set_or_reset(void)
     GPIOA->ODR |= BIT(5u);                             /* pretend LED high */
     GPIOA->BSRR = 0u;
     led_toggle();
-    TEST_ASSERT_BITS_HIGH(BIT(5u + 16u), GPIOA->BSRR);  /* choose reset */
+    TEST_ASSERT_EQUAL_HEX32(BIT(5u + 16u), GPIOA->BSRR);/* reset halfword only */
 
     GPIOA->ODR &= ~BIT(5u);                             /* pretend LED low */
     GPIOA->BSRR = 0u;
     led_toggle();
-    TEST_ASSERT_BITS_HIGH(BIT(5u), GPIOA->BSRR);        /* chose set*/
+    TEST_ASSERT_EQUAL_HEX32(BIT(5u), GPIOA->BSRR);      /* set halfword only */
 }
 
 /* 5) Init must not disturb unrelated PA pins */
 void test_led_init_does_not_touch_other_pins(void)
 {
-    GPIOA->MODER |= (0x3u << (0u * 2u));                /* seed PA0 = 11b (analog) */
-    uint32_t before_pa0_moder = GPIOA->MODER & (0x3u << (0u * 2u));
+    const uint32_t pa0_mask = (0x3u << (0u * 2u));     /* PA0 2-bit field */
+
+    GPIOA->MODER  |= pa0_mask;                          /* seed PA0 = 11b (analog) */
+    GPIOA->OSPEED |= pa0_mask;                          /* seed PA0 speed */
+    GPIOA->PUPDR  |= pa0_mask;                          /* seed PA0 pull */
+
+    uint32_t before_moder  = GPIOA->MODER  & pa0_mask;
+    uint32_t before_ospeed = GPIOA->OSPEED & pa0_mask;
+    uint32_t before_pupdr  = GPIOA->PUPDR  & pa0_mask;
+
     led_init();
-    uint32_t after_pa0_moder = GPIOA->MODER & (0x3u << (0u*2u));
-    TEST_ASSERT_EQUAL_HEX32(before_pa0_moder, after_pa0_moder); /* unchanged */
+
+    TEST_ASSERT_EQUAL_HEX32(before_moder,  GPIOA->MODER  & pa0_mask); /* MODER unchanged */
+    TEST_ASSERT_EQUAL_HEX32(before_ospeed, GPIOA->OSPEED & pa0_mask); /* OSPEED unchanged */
+    TEST_ASSERT_EQUAL_HEX32(before_pupdr,  GPIOA->PUPDR  & pa0_mask); /* PUPDR unchanged */
 }
 
 /* 6) Calling init twice should be idempotent on visible fields */
