@@ -47,9 +47,20 @@ void test_led_init_enables_gpioa_and_configures_pa5_output_start_off(void)
 void test_led_on_sets_bsrr_set_bit_only(void)
 {
     led_init();
-    GPIOA->BSRR = 0u;
-    uint32_t before_odr = GPIOA->ODR;
-    led_on();
-    TEST_ASSERT_BITS_HIGH(BIT(5), GPIOA->BSRR);
-    TEST_ASSERT_EQUAL_HEX32(before_odr, GPIOA->ODR);
+    GPIOA->BSRR = 0u;                                   /* Clear observable write */
+    uint32_t before_odr = GPIOA->ODR;                   /* snapshot ODR */
+    led_on();                                           /* act */
+    TEST_ASSERT_BITS_HIGH(BIT(5), GPIOA->BSRR);         /* set halfword written */
+    TEST_ASSERT_EQUAL_HEX32(before_odr, GPIOA->ODR);    /* ODR untouched */
+}
+
+/* 3) led_off must only use BSRR reset halfword */
+void test_led_off_sets_bsrr_reset_bit_only(void)
+{
+    led_init();                                         
+    GPIOA->BSRR = 0u;                                   /* clear observable write */
+    uint32_t before_odr = GPIOA->ODR;                   /* snapshot ODR */
+    led_off();                                          /* act */
+    TEST_ASSERT_BITS_HIGH(BIT(5 + 16u), GPIOA->BSRR);   /* reset halfword written */
+    TEST_ASSERT_EQUAL_HEX32(before_odr, GPIOA->ODR);    /* ODR untouched */
 }
