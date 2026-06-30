@@ -19,3 +19,17 @@ importantly, you cannot easily create the failure conditions you need to test
 for. You cannot ask a microcontroller to please have its I2C peripheral return a
 corrupt byte on the third read. For a unit test to be effective, we have to
 remove the hardware from the equation entirely.
+
+## Test Doubles
+
+So how do we remove the hardware? We introduce a concept called the test double.
+The name comes from the movie industry, and the analogy fits well. A stunt
+double is a professional who stands in for the lead actor during the dangerous
+scenes. In our world, a test double is a piece of code that stands in for a real
+dependency such as a hardware driver, a network stack, or a file system.
+
+A double has the exact same interface as the real thing, the same function names
+and parameters, but its implementation is written specifically for testing. That
+lets us control its behavior completely. "Test double" is the broad category,
+and within it there are several distinct types. You will hear these terms often,
+so it is worth knowing how they differ.
