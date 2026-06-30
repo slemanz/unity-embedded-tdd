@@ -83,3 +83,29 @@ The workflow is straightforward:
    From `gpio.h`, CMock produces `mock_gpio.c` and `mock_gpio.h` automatically.
 3. **Use the mock.** In your test file, include `mock_gpio.h` instead of the real
    `gpio.h`, and your tests now talk to the generated double.
+
+## Using a CMock Mock: Expect, Act, Verify
+
+Working with a CMock mock follows a clean three-act pattern. The two acts that
+matter most are setting expectations and verifying them.
+
+The first act is **expectation**. This is the setup, where you use the special
+`_Expect` functions CMock generates to program the mock with what it should see.
+Before calling your code, you tell the mock exactly what to expect:
+
+```c
+GPIO_Write_Expect(USER_LED_PORT, USER_LED_PIN, GPIO_STATE_HIGH);
+```
+
+The second act is **action**. You call the production function that is supposed
+to trigger that interaction:
+
+```c
+led_driver_turn_on();
+```
+
+The third act is **verification**, and this part is automatic. When the test
+finishes, Unity and CMock work together to ask the mock: did everything happen
+exactly as it was told to expect? If a call was missed or a parameter was wrong,
+the mock fails the test and gives you a precise error message pointing at the
+mismatch. That is what makes mocks such a powerful way to verify behavior.
