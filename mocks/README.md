@@ -109,3 +109,54 @@ finishes, Unity and CMock work together to ask the mock: did everything happen
 exactly as it was told to expect? If a call was missed or a parameter was wrong,
 the mock fails the test and gives you a precise error message pointing at the
 mismatch. That is what makes mocks such a powerful way to verify behavior.
+
+## A Worked Example: an LED Driver and a GPIO Mock
+
+The example in this folder puts the whole pattern to work. The production code is
+a small LED driver in [`src/led_driver.c`](src/led_driver.c) that owns no
+hardware of its own. Everything it does, it does by calling into a GPIO contract
+declared in [`src/gpio.h`](src/gpio.h): `GPIO_Write(pin, state)` and
+`GPIO_Read(pin)`. That single dependency is the seam we exploit.
+
+In the test build we never compile a real `gpio.c`. Instead,
+[`tests/mock_gpio.c`](tests/mock_gpio.c) provides the definitions of `GPIO_Write`
+and `GPIO_Read`, so at link time the driver talks to the mock. This is a
+hand-written mock shaped exactly like the ones CMock generates: it offers the
+`_Expect` functions you program before acting, and a `mock_gpio_Verify` that the
+test calls at the end. Writing it by hand once is the best way to see what CMock
+would otherwise do for you.
+
+The tests in [`tests/test_led_driver.c`](tests/test_led_driver.c) read as the
+three acts described above. For example, toggling an LED that is currently off
+should read the pin and then write the opposite level:
+
+```c
+GPIO_Write_Expect(LED_PIN, GPIO_LOW);            /* init                       */
+GPIO_Read_ExpectAndReturn(LED_PIN, GPIO_LOW);    /* toggle reads the level     */
+GPIO_Write_Expect(LED_PIN, GPIO_HIGH);           /* toggle writes the opposite */
+
+led_driver_init(LED_PIN);
+led_driver_toggle();
+```
+
+The expectations come first, the action runs the real driver, and `tearDown`
+calls `mock_gpio_Verify` to confirm each call arrived with the right arguments in
+the right order. If the driver wrote the wrong level or skipped a call, the mock
+fails the test with a message pointing straight at the mismatch.
+
+## Building and Running
+
+The Makefile compiles the driver, the mock, the tests, and Unity into one host
+binary and runs it:
+
+```sh
+make        # compile and run the test suite
+make clean  # remove build artifacts
+```
+
+A successful run ends with `OK`. When you add a module, extend the `OBJS` and
+`TEST_OBJS` lists in the Makefile and register the new test functions in
+[`tests/test_runner.c`](tests/test_runner.c). Notice that `OBJS` lists only
+`led_driver.o`: the real GPIO implementation is never built, because the mock
+stands in for it. That is the whole point, you test the driver's logic without
+the hardware in the loop.
