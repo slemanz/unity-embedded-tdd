@@ -85,3 +85,19 @@ tolerance-based float checks. Two habits matter in embedded work: prefer the
 exact-width variants (`TEST_ASSERT_EQUAL_UINT16` over a generic `EQUAL`) to
 avoid integer-promotion surprises, and reach for the `HEX` variants when
 checking registers, so failure messages line up with the datasheet.
+
+## Project Structure and the Host Build
+
+One principle is non-negotiable: **test code and production code must be kept
+separate.** In an IDE project this means a dedicated `TDD` folder holding the
+tests, the Unity source, and the generated mocks, and that folder is excluded
+from the production build, both because host-oriented test code can break the
+target compile and because it has no business in the final binary.
+
+The modules here use a deliberately simple host-side layout: production code
+in `src/`, tests and an explicit runner in `tests/`, the framework vendored
+in `unity/`, and a plain Makefile that compiles everything into one
+executable and runs it. Unity does not discover tests automatically, so
+adding a module is a three-step change: write its tests, register the group
+in the runner, and add its objects to the Makefile. The `template/` folder is
+a ready-to-copy skeleton of exactly this arrangement.
