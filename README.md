@@ -62,3 +62,26 @@ with test files (`led_driver.c` gets `test_led_driver.c`), and treat each
 test name as documentation: `test_driver_init_enables_the_gpio_clock` tells
 you what broke without opening the file, while `test_led_one` tells you
 nothing.
+
+## The Unity Framework
+
+Unity is the test runner and referee. It is not installed system-wide; it is
+a small set of C files vendored into the project and compiled alongside the
+code under test, so a fresh clone builds and tests without any external
+setup.
+
+It offers two styles. The core framework (`unity.c`) uses free functions
+registered with `RUN_TEST` and global `setUp`/`tearDown` hooks, and suits
+small, focused suites. The fixture extension (`unity_fixture.c`) adds named
+`TEST_GROUP`s with per-group setup and teardown, and pays off once a suite
+grows. The assertion macros behave identically in both; only the organization
+changes.
+
+The assertion vocabulary is broad, but a few families cover nearly every
+embedded case: boolean and pointer checks, integer and hex equality at exact
+widths, bit and bitmask checks (the workhorses of driver tests), relational
+and within-tolerance comparisons, string, memory, and array comparisons, and
+tolerance-based float checks. Two habits matter in embedded work: prefer the
+exact-width variants (`TEST_ASSERT_EQUAL_UINT16` over a generic `EQUAL`) to
+avoid integer-promotion surprises, and reach for the `HEX` variants when
+checking registers, so failure messages line up with the datasheet.
