@@ -130,3 +130,17 @@ target. Tests then assert, bit by bit, exactly what landed in each register.
 confirm that every call arrived with the right arguments in the right order.
 CMock automates this by parsing a header and generating the matching mock,
 which is why the header, the contract, is the critical artifact.
+
+## Contents
+
+In reading order:
+
+- [Foundations](./foundations/README.md): why TDD, the cost of a bug, and the Red-Green-Refactor cycle
+- [Anatomy](./anatomy/README.md): how a TDD project is laid out and kept out of the firmware build
+- [Configuring](./configuring/README.md): wiring Unity into a Makefile build, step by step
+- [First Examples](./first-examples/README.md): the calculator, grown one failing test at a time
+- [The Unity Framework](./the-unity-framework/README.md): the cycle as a habit, FIRST, naming, and the full assertion tour
+- [Unity Assertions](./unity-assertions/README.md): the assertion vocabulary with runnable passing and failing demos
+- [Bare Metal Drivers](./bare-driver/README.md): testing a register-level LED driver on the host with a register fake
+- [Mocks](./mocks/README.md): test doubles, CMock, and the expect/act/verify pattern
+- [Template](./template/README.md): a ready-to-copy skeleton for starting a new module
