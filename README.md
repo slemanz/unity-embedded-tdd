@@ -101,3 +101,32 @@ executable and runs it. Unity does not discover tests automatically, so
 adding a module is a three-step change: write its tests, register the group
 in the runner, and add its objects to the Makefile. The `template/` folder is
 a ready-to-copy skeleton of exactly this arrangement.
+
+## Testing Hardware Without the Hardware
+
+The biggest challenge in embedded testing is the hardware itself. Leaning on
+a real board violates every FIRST quality: flashing and watching a pin is
+slow, the physical world is not repeatable, and you cannot ask a peripheral
+to return a corrupt byte on demand. The answer is the **test double**, a
+piece of code with the same interface as a real dependency but behavior you
+control completely. You are testing your logic, not your multimeter.
+
+The taxonomy is worth keeping straight. A **stub** hands back canned answers.
+A **fake** is a lightweight working implementation, like a flash driver that
+writes to a RAM array. A **mock** verifies behavior: you program it with the
+calls it should receive, and it fails the test if reality differs. A stub
+answers "what is the state?", a mock answers "was I called correctly?".
+
+Two techniques carry most of the weight in practice:
+
+**Register fakes.** A bare-metal driver only reads and writes addresses, so
+the peripheral registers can be modeled as plain structs in host memory, with
+the chip header as the seam: point `GPIOA` at a global instead of a fixed
+address and the same driver source compiles unchanged for the host or the
+target. Tests then assert, bit by bit, exactly what landed in each register.
+
+**Mocks and expect/act/verify.** Program the mock's expectations first
+(`GPIO_Write_Expect(...)`), run the production code, and let verification
+confirm that every call arrived with the right arguments in the right order.
+CMock automates this by parsing a header and generating the matching mock,
+which is why the header, the contract, is the critical artifact.
