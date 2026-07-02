@@ -23,3 +23,42 @@ challenges. The sections below summarize the core ideas so this page works as
 a refresher long after the details have faded; the links at the end lead to
 the full material, and every module with code builds and runs on the host
 with a single `make`.
+
+## The Red-Green-Refactor Cycle
+
+The heartbeat of the practice is a three-step loop, and each step has a
+distinct mindset.
+
+**Red.** Write a test for code that does not exist yet and watch it fail.
+This is the real design phase: writing the test first makes you the first
+user of your own code, forcing you to choose the function's name, parameters,
+and return type by deciding how you want to call it. The failing test is not
+a mistake, it is a victory, because it proves you have described a
+requirement the system does not yet meet.
+
+**Green.** Write the absolute minimum code that makes the test pass. If the
+test expects five, returning a literal five is allowed; the next test will
+force the real logic. Resist overengineering: no future-proofing, no gold
+plating, no logic the tests do not explicitly ask for.
+
+**Refactor.** With passing tests as a safety net, improve the code with
+complete confidence. If a change breaks something, a test fails immediately,
+while the mistake is still small and fresh in your mind.
+
+## What Makes a Good Unit Test
+
+A bad test is worse than no test: it gives false confidence or becomes a
+brittle maintenance burden. The acronym **FIRST** captures the qualities that
+keep tests valuable. A test should be **Fast**, so the whole suite runs in a
+blink and you run it constantly. **Independent**, starting from a clean slate
+with no dependence on other tests, which is what setup and teardown exist
+for. **Repeatable**, giving the same result in any environment, the core
+reason mocks replace unpredictable hardware. **Self-Validating**, deciding
+its own pass or fail with no human interpretation. And **Timely**, written
+before the production code, which is the definition of TDD itself.
+
+Two naming habits do most of the maintenance work. Mirror production files
+with test files (`led_driver.c` gets `test_led_driver.c`), and treat each
+test name as documentation: `test_driver_init_enables_the_gpio_clock` tells
+you what broke without opening the file, while `test_led_one` tells you
+nothing.
